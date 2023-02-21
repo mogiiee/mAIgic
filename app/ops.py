@@ -1,15 +1,11 @@
 from bson import ObjectId
-import database
-from responses import response as r
+from . import database
+from . import responses
 
-async def inserter(metadata):
+async def inserter(metadata: dict):
     database.collection.insert_one(metadata)
-    return r(True,"inserted successfully",metadata)
+    return responses.response(True, "inserted successfully" ,metadata)
 
 def deleter(id):
     database.collection.delete_one({'_id':ObjectId(id)})
-    return r(True, "deleted", None)
-
-def get_all_data():
-    response =database.collection.find({})
-    return list(response)
+    return responses.response(True, "deleted", None)
