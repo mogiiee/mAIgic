@@ -1,3 +1,4 @@
+import copy
 import bcrypt
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.encoders import jsonable_encoder
@@ -43,10 +44,16 @@ async def login(email: str, password: str):
 @app.post("/creator/{email}", dependencies=[Depends(JWTBearer())], tags=["creator"])
 async def add_job(job_deets: models.JobSchema):
     json_job_deets = jsonable_encoder(job_deets)
-    full_profile = ops.find_user_email(job_deets.confirm_email)
+    email = job_deets.confirm_email
+    full_profile = await ops.find_user_email(email)
+    creator_user_attributes = full_profile["creator_attributes"]
+    original_attributes = copy.deepcopy(full_profile["creator_attributes"])
+    creator_user_attributes.append(json_job_deets)
 
-    # ops.job_inserter(json_job_deets)
-    return responses.response(True, "inserter", full_profile)
+    ops.updater(original_attributes,creator_user_attributes)
+
+    # ops._inserter(json_job_deets)
+    return responses.response(True, "inserter", str(full_profile))
 
 
 @app.post("/signup/user", tags=["user"])
@@ -76,6 +83,14 @@ async def login(email: EmailStr, password: str):
 @app.delete("/collection/", tags=["do not touch"])
 async def delete_collection():
     # Delete all documents in the user_collection
-    database.user_collection.delete_many({})
+    database.user_collection.delete_one({})
 
     return {"success": True}
+
+@app.get('/getuser')
+async def find_user_email(email):
+    user = database.user_collection.find_one({"email": email})
+    print(user)
+    if not user:
+        return responses.response(False, "does not exist", email)
+    return str(user)

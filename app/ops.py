@@ -1,5 +1,5 @@
 from bson import ObjectId
-from . import database, responses, models
+from . import database, responses
 import bcrypt
 
 
@@ -19,6 +19,8 @@ async def find_user_email(email):
         return responses.response(False, "does not exist", email)
     return user
 
+def updater(WrongValue,CorrectValue):
+    database.user_collection.update_one({"creator_attributes":WrongValue},{"$set":{"creator_attributes":CorrectValue}}, upsert =True)
 
 def deleter(id):
     database.user_collection.delete_one({"_id": ObjectId(id)})

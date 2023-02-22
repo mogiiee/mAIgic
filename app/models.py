@@ -8,6 +8,9 @@ class CreatorSignUp(BaseModel):
     email: str
     password: str
     creator = "yes"
+    creator_attributes =[] 
+
+
 
 
 class UserSignUp(BaseModel):
