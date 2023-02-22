@@ -8,7 +8,7 @@ JWT_ALGORITHM = config("algorithm")
 
 
 def token_response(token: str):
-    return response(True, token,  None)
+    return response(True, token, None)
 
 
 def signJWT(email: str):
@@ -26,4 +26,4 @@ def decodeJWT(token: str):
             else print("invalid token, expired")
         )
     except Exception as e:
-        return response(False, e,  None )
+        return response(False, e, None)

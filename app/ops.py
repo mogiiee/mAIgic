@@ -1,24 +1,29 @@
 from bson import ObjectId
-from . import database,responses,models
+from . import database, responses, models
 import bcrypt
+
 
 async def inserter(metadata: dict):
     database.user_collection.insert_one(metadata)
-    return responses.response(True, "inserted successfully" ,metadata)
+    return responses.response(True, "inserted successfully", metadata)
+
 
 async def job_inserter(metadata: dict):
     database.job_collection.insert_one(metadata)
-    return responses.response(True, "inserted successfully" ,metadata)
+    return responses.response(True, "inserted successfully", metadata)
+
 
 async def find_user_email(email):
     user = database.user_collection.find_one({"email": email})
     if not user:
         return responses.response(False, "does not exist", email)
     return user
-    
+
+
 def deleter(id):
-    database.user_collection.delete_one({'_id':ObjectId(id)})
+    database.user_collection.delete_one({"_id": ObjectId(id)})
     return responses.response(True, "deleted", None)
+
 
 async def email_finder(email):
     existing_user = database.user_collection.find_one({"email": email})

@@ -4,25 +4,23 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import EmailStr
 from . import models, responses, ops, database
 from app.auth.jwt_bearer import JWTBearer
-from app.auth import  jwt_handler
-
-
+from app.auth import jwt_handler
 
 
 app = FastAPI()
 
 
-
-
 @app.get("/")
 async def greet():
-    return {"hello":"world"}
+    return {"hello": "world"}
 
 
-@app.post("/signup/creator",tags= ['creator'])
-async def creator_signup(signup_details:  models.CreatorSignUp):
+@app.post("/signup/creator", tags=["creator"])
+async def creator_signup(signup_details: models.CreatorSignUp):
     # Checking if email already exists
-    email_count =  database.user_collection.count_documents({"email": signup_details.email})
+    email_count = database.user_collection.count_documents(
+        {"email": signup_details.email}
+    )
     if email_count > 0:
         return responses.response(False, "duplicated user, email already in use", None)
     # Insert new user
@@ -33,7 +31,7 @@ async def creator_signup(signup_details:  models.CreatorSignUp):
     return responses.response(True, "inserted", str(json_signup_details))
 
 
-@app.post("/login/creator",tags=["creator"])
+@app.post("/login/creator", tags=["creator"])
 async def login(email: str, password: str):
     # Verify credentials
     if await ops.verify_credentials(email, password):
@@ -42,20 +40,20 @@ async def login(email: str, password: str):
         raise HTTPException(401, "unauthorised login or email is wrong")
 
 
-
-@app.post("/creator/{email}", dependencies=[Depends(JWTBearer())], tags=['creator'])
+@app.post("/creator/{email}", dependencies=[Depends(JWTBearer())], tags=["creator"])
 async def add_job(job_deets: models.JobSchema):
     json_job_deets = jsonable_encoder(job_deets)
     full_profile = ops.find_user_email(job_deets.confirm_email)
-    
+
     # ops.job_inserter(json_job_deets)
     return responses.response(True, "inserter", full_profile)
 
 
-
-@app.post('/signup/user', tags= ['user'])
-async def user_login(signup_details: models.UserSignUp) :
-    email_count =  database.user_collection.count_documents({"email": signup_details.email})
+@app.post("/signup/user", tags=["user"])
+async def user_login(signup_details: models.UserSignUp):
+    email_count = database.user_collection.count_documents(
+        {"email": signup_details.email}
+    )
     if email_count > 0:
         return responses.response(False, "duplicated user, email already in use", None)
     # Insert new user
@@ -66,14 +64,13 @@ async def user_login(signup_details: models.UserSignUp) :
     return responses.response(True, "inserted", str(json_signup_details))
 
 
-@app.post("/login/user",tags=["user"])
+@app.post("/login/user", tags=["user"])
 async def login(email: EmailStr, password: str):
     # Verify credentials
     if await ops.verify_credentials(email, password):
-        return responses.response(True, "Logged in", "Hello"+ email)
+        return responses.response(True, "Logged in", "Hello" + email)
     else:
         raise HTTPException(401, "unauthorised login")
-
 
 
 @app.delete("/collection/", tags=["do not touch"])
