@@ -6,4 +6,8 @@ cluster = pymongo.MongoClient(exporter.realcluster)
 
 db = cluster[exporter.db_name]
 
-collection = db[exporter.db_collection]
+user_collection = db[exporter.complete_user]
+
+post_collection = db[exporter.post_collection]
+
+job_collection = db[exporter.job_collection]
