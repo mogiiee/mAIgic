@@ -1,11 +1,13 @@
-import os
+from . import exporter
 import pymongo
 
 
-realcluster = os.environ.get("CLUSTER")
-db_name = os.environ.get("DB")
-db_collection = os.environ.get("COLLECTION")
+cluster = pymongo.MongoClient(exporter.realcluster)
 
-cluster = pymongo.MongoClient(realcluster)
-db = cluster[db_name]
-collection = db[db_collection]
+db = cluster[exporter.db_name]
+
+user_collection = db[exporter.complete_user]
+
+post_collection = db[exporter.post_collection]
+
+job_collection = db[exporter.job_collection]
