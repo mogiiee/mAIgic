@@ -89,6 +89,23 @@ async def detail_updater(newdeets: models.CreatorSignUp):
     database.user_collection.update_one(full_profile,)
 
 
+@app.post("/signup/user", tags=["user"])
+async def user_signup(signup_details: models.UserSignUp):
+    # Checking if email already exists
+    email_count = database.user_collection.count_documents(
+        {"email": signup_details.email}
+    )
+    if email_count > 0:
+        return responses.response(False, "duplicated user, email already in use", None)
+    # Insert new user
+    encoded_password = ops.hash_password(str(signup_details.password))
+    signup_details.password = encoded_password
+    json_signup_details = jsonable_encoder(signup_details)
+    await ops.inserter(json_signup_details)
+    return responses.response(True, "inserted", str(json_signup_details))
+
+
+
 
 # @app.post("/user/register-course", tags=["user"])
 # async def add_job(registeration_deets: models.RegisterForJob):
