@@ -9,7 +9,7 @@ async def inserter(metadata: dict):
 
 
 async def job_inserter(metadata: dict):
-    database.job_collection.insert_one(metadata)
+    await database.job_collection.insert_one(metadata)
     return responses.response(True, "inserted successfully", metadata)
 
 
@@ -19,8 +19,11 @@ async def find_user_email(email):
         return responses.response(False, "does not exist", email)
     return user
 
-def updater(WrongValue,CorrectValue):
+def creator_attributes_updater(WrongValue,CorrectValue):
     database.user_collection.update_one({"creator_attributes":WrongValue},{"$set":{"creator_attributes":CorrectValue}}, upsert =True)
+
+def user_attributes_updater(WrongValue,CorrectValue):
+    database.user_collection.update_one({"user_attributes":WrongValue},{"$set":{"user_attributes":CorrectValue}}, upsert =True)
 
 def deleter(id):
     database.user_collection.delete_one({"_id": ObjectId(id)})
@@ -55,3 +58,10 @@ async def verify_credentials(username: str, password: str) -> bool:
     hashed_password = user["password"].encode("utf-8")
     is_valid_password = bcrypt.checkpw(password.encode("utf-8"), hashed_password)
     return is_valid_password
+
+def creator_or_user(email) -> bool:
+    full_profile=  email_finder(email)
+    if full_profile["creator"] == "no":
+        return False
+    if full_profile["creator"] == "yes":
+        return True
